@@ -1,30 +1,13 @@
 # sato
+Platform for LLM-powered smart home speaker
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+Tech stack:
+1. Browser's Speech-To-Text (STT) transcription
+2. ChatGPT 4o for response generation
+3. ElevenLabs for Text-To-Speech (TTS) responses
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/ishang97s-projects/v0-sato)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/2uPjfVcpJlY)
+Live at:
 
-## Overview
+**[https://v0-sato.vercel.app/](https://v0-sato.vercel.app/)**
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
-
-## Deployment
-
-Your project is live at:
-
-**[https://vercel.com/ishang97s-projects/v0-sato](https://vercel.com/ishang97s-projects/v0-sato)**
-
-## Build your app
-
-Continue building your app on:
-
-**[https://v0.dev/chat/projects/2uPjfVcpJlY](https://v0.dev/chat/projects/2uPjfVcpJlY)**
-
-## How It Works
-
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+Built using [v0.dev](https://v0.dev)
