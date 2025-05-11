@@ -29,7 +29,7 @@ export default function Sato() {
 
   const recognitionRef = useRef<any>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const silenceTimerRef = useRef<NodeJS.Timeout | null>([])
   const lastSpeechTimestampRef = useRef<number>(Date.now())
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const audioSourceRef = useRef<string | null>(null)
@@ -227,9 +227,9 @@ export default function Sato() {
         console.log(`Processing after ${silenceDuration}ms of silence`)
         stopListeningAndProcess()
       }
-      // If we've been listening for more than 8 seconds with no transcript, stop
-      else if (!transcript.trim() && silenceDuration > 8000 && isListening && !processingRef.current) {
-        console.log("No speech detected for 8 seconds, stopping")
+      // If we've been listening for more than 1.5 seconds with no transcript, stop
+      else if (!transcript.trim() && silenceDuration > 1500 && isListening && !processingRef.current) {
+        console.log("No speech detected for 1.5 seconds, stopping")
         setIsListening(false)
         setStatus("idle")
         if (recognitionRef.current) {
