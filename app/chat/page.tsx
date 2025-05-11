@@ -228,8 +228,8 @@ export default function Sato() {
         stopListeningAndProcess()
       }
       // If we've been listening for more than 1.5 seconds with no transcript, stop
-      else if (!transcript.trim() && silenceDuration > 1500 && isListening && !processingRef.current) {
-        console.log("No speech detected for 1.5 seconds, stopping")
+      else if (!transcript.trim() && silenceDuration > 2000 && isListening && !processingRef.current) {
+        console.log("No speech detected for 2 seconds, stopping")
         setIsListening(false)
         setStatus("idle")
         if (recognitionRef.current) {
