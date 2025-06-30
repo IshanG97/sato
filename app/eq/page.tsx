@@ -49,6 +49,7 @@ export default function EQPage() {
   const startTimeRef = useRef<number>(0)
   const pauseOffsetRef = useRef<number>(0)
   const animationFrameRef = useRef<number | null>(null)
+  const isPlayingRef = useRef<boolean>(false) // Use ref to avoid stale closures
 
   // Default EQ bands (10-band EQ)
   const defaultEQBands: EQBand[] = [
@@ -81,12 +82,18 @@ export default function EQPage() {
     }
   }, [])
 
+  // Sync isPlaying state with ref
+  useEffect(() => {
+    isPlayingRef.current = isPlaying
+  }, [isPlaying])
+
   const handleFileSelect = useCallback(async (file: File) => {
     console.log("Loading file:", file.name)
     setAudioFile(file)
 
     // Reset playback state
     setIsPlaying(false)
+    isPlayingRef.current = false
     setCurrentTime(0)
     pauseOffsetRef.current = 0
 
@@ -204,22 +211,37 @@ export default function EQPage() {
     }
   }, [])
 
+  // Improved updateTime function without dependencies on state
   const updateTime = useCallback(() => {
-    if (!audioContextRef.current || !sourceNodeRef.current) return
+    if (!audioContextRef.current || !sourceNodeRef.current || !isPlayingRef.current) {
+      return
+    }
 
     const elapsed = audioContextRef.current.currentTime - startTimeRef.current
     const newTime = Math.min(elapsed, duration)
+
     setCurrentTime(newTime)
 
-    if (newTime < duration && isPlaying) {
+    if (newTime < duration && isPlayingRef.current) {
       animationFrameRef.current = requestAnimationFrame(updateTime)
     } else if (newTime >= duration) {
       // Playback finished
+      console.log("Playback finished")
       setIsPlaying(false)
+      isPlayingRef.current = false
       setCurrentTime(duration)
       pauseOffsetRef.current = 0
     }
-  }, [duration, isPlaying])
+  }, [duration]) // Only depend on duration
+
+  // Start time updates - separate function to ensure it always runs
+  const startTimeUpdates = useCallback(() => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+    }
+    console.log("Starting time updates")
+    animationFrameRef.current = requestAnimationFrame(updateTime)
+  }, [updateTime])
 
   const playAudio = useCallback(async () => {
     if (!audioBuffer || !audioContextRef.current) {
@@ -278,6 +300,7 @@ export default function EQPage() {
       source.onended = () => {
         console.log("Playback ended")
         setIsPlaying(false)
+        isPlayingRef.current = false
         if (pauseOffsetRef.current >= duration - 0.1) {
           // If we're at the end, reset to beginning
           setCurrentTime(0)
@@ -288,16 +311,20 @@ export default function EQPage() {
       // Start playback
       source.start(startTime, offset)
       setIsPlaying(true)
+      isPlayingRef.current = true
       console.log("Playback started successfully")
 
-      // Start time updates
-      updateTime()
+      // Start time updates - ensure this always happens
+      setTimeout(() => {
+        startTimeUpdates()
+      }, 50) // Small delay to ensure everything is set up
     } catch (error) {
       console.error("Error playing audio:", error)
       setIsPlaying(false)
+      isPlayingRef.current = false
       alert("Error playing audio. Please try reloading the file.")
     }
-  }, [audioBuffer, useEQ, eqSuggestion, customEQ, stopCurrentPlayback, createEQNodes, updateTime, duration])
+  }, [audioBuffer, useEQ, eqSuggestion, customEQ, stopCurrentPlayback, createEQNodes, duration, startTimeUpdates])
 
   const pauseAudio = useCallback(() => {
     if (!audioContextRef.current || !sourceNodeRef.current) return
@@ -309,6 +336,7 @@ export default function EQPage() {
 
       stopCurrentPlayback()
       setIsPlaying(false)
+      isPlayingRef.current = false
     } catch (error) {
       console.error("Error pausing audio:", error)
     }
@@ -318,6 +346,7 @@ export default function EQPage() {
     console.log("Stopping playback")
     stopCurrentPlayback()
     setIsPlaying(false)
+    isPlayingRef.current = false
     setCurrentTime(0)
     pauseOffsetRef.current = 0
   }, [stopCurrentPlayback])
@@ -326,7 +355,7 @@ export default function EQPage() {
   const seekAudio = useCallback(
     (time: number) => {
       console.log("Seeking to:", time)
-      const wasPlaying = isPlaying
+      const wasPlaying = isPlayingRef.current
 
       // Stop current playback
       if (wasPlaying) {
@@ -344,7 +373,7 @@ export default function EQPage() {
         }, 50)
       }
     },
-    [isPlaying, duration, stopCurrentPlayback, playAudio],
+    [duration, stopCurrentPlayback, playAudio],
   )
 
   const updateEQBand = useCallback(
@@ -379,7 +408,7 @@ export default function EQPage() {
   const handleEQToggle = useCallback(
     (enabled: boolean) => {
       console.log("Toggling EQ:", enabled)
-      const wasPlaying = isPlaying
+      const wasPlaying = isPlayingRef.current
 
       if (wasPlaying) {
         // Store current position and stop
@@ -398,7 +427,7 @@ export default function EQPage() {
         }, 100)
       }
     },
-    [isPlaying, stopCurrentPlayback, playAudio],
+    [stopCurrentPlayback, playAudio],
   )
 
   const currentEQData = useEQ ? eqSuggestion?.bands || customEQ : customEQ
