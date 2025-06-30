@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
 
       if (!error) {
-        router.push("/chat")
+        router.push("/eq")
       }
 
       return { error }
