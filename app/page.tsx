@@ -23,7 +23,7 @@ export default function LoginPage() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
-      router.push("/chat")
+      router.push("/eq")
     }
   }, [isAuthenticated, isLoading, router])
 
