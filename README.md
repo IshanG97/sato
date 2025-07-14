@@ -2,7 +2,7 @@
 
 **[https://v0-sato.vercel.app/](https://v0-sato.vercel.app/)**
 
-Platform to test functionality that will eventually go into an LLM-powered smart home speaker
+Platform to build functionality for LLM-powered smart home speakers
 
 Tech for EQ (this is what the speaker will use to dynamically modify the EQ based on the audio waveform input):
 1. Web Audio API - Browser's native audio processing engine (will be swapped to something more robust)
